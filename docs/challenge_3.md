@@ -18,7 +18,7 @@ For ease of development, be sure to set Babel to watch for changes in your `app.
 
 Use the coding best practices you learned previously to ensure a clear separation of concerns with well-defined interfaces.
 
-If you get stuck or are not sure how to proceed, you may look at the [hints file](docs/challenge_3) for this challenge to help you along. **DO NOT** look at the hints without deliberation as this reduces your learning potential. Hints are provided only for the basic requirements.
+If you get stuck or are not sure how to proceed, you may look at the [hints file](docs/hints_3.md) for this challenge to help you along. **DO NOT** look at the hints without deliberation as this reduces your learning potential. Hints are provided only for the basic requirements.
 
 ## Advanced Content
 

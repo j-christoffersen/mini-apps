@@ -18,7 +18,7 @@ MVC frameworks help you separate and manage the concerns associated with user in
 
 If you get stuck or are not sure how to proceed:
 
-- you may look at the [hints file](docs/challenge_1) for this challenge to help you along.
+- you may look at the [hints file](docs/hints_1.md) for this challenge to help you along.
 - you may substitute the use of native DOM methods with jQuery.
 
 **DO NOT** take any of these exits without deliberation as this reduces your learning potential. Hints are provided only for the basic requirements.

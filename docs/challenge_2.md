@@ -21,7 +21,7 @@ You may assume the JSON data has a regular structure and hierarchy (see included
 Use the coding best practices you learned previously to ensure a clear separation of concerns with well-defined interfaces.
 
 If you get stuck or are not sure how to proceed:
-- you may look at the [hints file](docs/challenge_2) for this challenge to help you along.
+- you may look at the [hints file](docs/hints_2.md) for this challenge to help you along.
 - you may use a CSV generator library from npmjs.org.
 
 **DO NOT** take any of these exits without deliberation as this reduces your learning potential. Hints are provided only for the basic requirements.

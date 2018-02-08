@@ -14,7 +14,7 @@ Additionally, simplify gameplay by initially making this a one-person game. This
 
 Write tests to ensure all the nuances of the scoring rules for bowling are correctly implemented.
 
-For this final challenge, minimal [hints](docs/challenge_4) are provide since the hints for basic requirements are covered by prior hints.
+For this final challenge, minimal [hints](docs/hints_4.md) are provide since the hints for basic requirements are covered by prior hints.
 
 ## Advanced Content
 
