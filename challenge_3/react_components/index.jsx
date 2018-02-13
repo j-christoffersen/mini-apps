@@ -1,10 +1,10 @@
 // import React from 'react';
 // import ReactDOM from 'react-dom';
 
-const App = () => React.createElement(
-  "div",
-  null,
-  React.createElement(Board, null)
+const App = () => (
+  <div>
+    <Board />
+  </div>
 );
 
 class Board extends React.Component {
@@ -14,14 +14,14 @@ class Board extends React.Component {
     this.state = {
       player: 1,
       board: _.range(7).map(i => [0, 0, 0, 0, 0, 0]),
-      winner: 0
+      winner: 0,
     };
 
     this.onClick = this.onClick.bind(this);
   }
 
   onClick(colIndex) {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       const col = prevState.board[colIndex].slice();
       let player = prevState.player;
       let winner = prevState.winner;
@@ -32,7 +32,7 @@ class Board extends React.Component {
           col[i] = prevState.player;
           board[colIndex] = col;
 
-          if (checkForWin(board, colIndex, i, player)) {
+          if (checkForWin(board, colIndex, i ,player)) {
             winner = player;
           }
 
@@ -41,37 +41,46 @@ class Board extends React.Component {
         }
       }
 
+      
+
       return {
         player,
         board,
-        winner
-      };
+        winner,
+      }
     });
   }
 
   render() {
-    return React.createElement(
-      "div",
-      { className: "board" },
-      this.state.board.map((col, i) => React.createElement(Column, { col: col, index: i, key: i, onClick: this.onClick })),
-      React.createElement(
-        "div",
-        null,
-        this.state.winner ? `Game Over! Player ${this.state.winner} wins!` : `It is player ${this.state.player}'s turn.`
-      )
+    return (
+      <div className="board">
+        {
+          this.state.board.map((col, i) => (
+            <Column col={col} index={i} key={i} onClick={this.onClick} />
+          ))
+        }
+        <div>
+          {this.state.winner ?
+            `Game Over! Player ${this.state.winner} wins!` :
+            `It is player ${this.state.player}'s turn.`}
+        </div>
+      </div>
     );
   }
 }
 
-const Column = props => React.createElement(
-  "div",
-  { className: "column", onClick: () => {
-      props.onClick(props.index);
-    } },
-  props.col.slice().reverse().map((square, i) => React.createElement("div", { className: `square ${getPlayerFor(square)}`, key: i }))
+const Column = (props) => (
+  <div className="column" onClick={() => {props.onClick(props.index)}}>
+    {
+      props.col.slice().reverse().map((square, i) => (
+        <div className={`square ${getPlayerFor(square)}`} key={i}></div>
+      ))
+    }
+  </div>
 );
 
-ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
+ReactDOM.render(<App />, document.getElementById('app'));
+
 
 // Helpers
 
@@ -83,7 +92,8 @@ function getPlayerFor(square) {
 };
 
 function checkForWin(board, i, j, player) {
-  return vertical(board, i, j, player) || horizontal(board, i, j, player) || major(board, i, j, player) || minor(board, i, j, player);
+  return vertical(board, i, j, player) || horizontal(board, i, j, player) ||
+    major(board, i, j, player) || minor(board, i, j, player);
 }
 
 function vertical(board, i, j, player) {
@@ -135,6 +145,7 @@ function major(board, i, j, player) {
 
   return total >= 4;
 }
+
 
 function minor(board, i, j, player) {
   let total = 1;

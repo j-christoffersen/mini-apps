@@ -1,0 +1,29 @@
+.board {
+  display: flex;
+  flex-direction: row;
+}
+
+.column {
+  background-color: darkorange;
+  padding: 10px;
+}
+
+.square {
+  height: 100px;
+  width: 100px;
+  border-radius: 50%;
+  border: 2px solid black;
+  margin: 10px 0 10px 0px;
+}
+
+.empty {
+  background-color: white;
+}
+
+.player-1 {
+  background-color: powderblue;
+}
+
+.player-2 {
+  background-color: tomato;
+}
