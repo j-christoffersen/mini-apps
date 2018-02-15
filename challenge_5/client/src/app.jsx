@@ -27,7 +27,7 @@ class App extends React.Component {
     }
   }
 
-  // reducer creator
+  // reducer creators
 
   select(row, col, jump=false) {
     return (prevState) => {
@@ -49,6 +49,24 @@ class App extends React.Component {
     }
   }
 
+  deselect(row, col) {
+    return (prevState) => {
+      const state = deepCopy(prevState);
+      const [srow, scol] = state.selected;
+
+      state.moves.forEach((move) => {
+        let [mrow, mcol] = move;
+        state.board[mrow][mcol].highlighted = false;
+      });
+
+      state.board[srow][scol].selected = false;
+      state.selected = null;
+      state.moves = null;
+
+      return state;
+    }
+  }
+
   move(row, col) {
     const [sRow, sCol] = this.state.selected;
     const moves = this.state.moves;
@@ -57,20 +75,17 @@ class App extends React.Component {
       .reduce((acc, bool) => acc || bool);
 
     return (prevState) => {
+      let state = deepCopy(prevState);
       if (validMove) {
-        let state = deepCopy(prevState);
 
-        moves.forEach((move) => {
-          let [mrow, mcol] = move;
-          state.board[mrow][mcol].highlighted = false;
-        });
+        state = this.deselect()(state);
 
         state.board[row][col] = state.board[sRow][sCol];
         if (row === 0 || row === 7) {
           state.board[row][col].king = true;
         }
         state.board[row][col].highlighted = false;
-        state.board[sRow][sCol].selected = false;
+        state.board[row][row].selected = false;
 
         if (!(row === sRow)) {
           state.board[sRow][sCol] = { player: null };
@@ -88,14 +103,12 @@ class App extends React.Component {
         } else {
           // change turn
           state.player = state.player === 1 ? 2 : 1;
-          state.selected = null;
-          state.moves = null;
         }
-
-        return state;
+      } else if (row === sRow && col === sCol) {
+        state = this.deselect()(state);
       }
 
-      return {};
+      return state;
     }
   }
 
