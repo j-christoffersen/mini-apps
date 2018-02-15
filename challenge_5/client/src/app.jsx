@@ -49,7 +49,7 @@ class App extends React.Component {
     }
   }
 
-  deselect(row, col) {
+  deselect() {
     return (prevState) => {
       const state = deepCopy(prevState);
       const [srow, scol] = state.selected;
@@ -68,43 +68,43 @@ class App extends React.Component {
   }
 
   move(row, col) {
-    const [sRow, sCol] = this.state.selected;
-    const moves = this.state.moves;
-    const validMove = moves
-      .map(move => move[0] === row && move[1] === col)
-      .reduce((acc, bool) => acc || bool);
-
     return (prevState) => {
       let state = deepCopy(prevState);
-      if (validMove) {
 
+      const [srow, scol] = state.selected;
+      const moves = state.moves;
+      const validMove = moves
+        .map(move => move[0] === row && move[1] === col)
+        .reduce((acc, bool) => acc || bool);
+
+      if (validMove) {
         state = this.deselect()(state);
 
-        state.board[row][col] = state.board[sRow][sCol];
+        state.board[row][col] = state.board[srow][scol];
         if (row === 0 || row === 7) {
           state.board[row][col].king = true;
         }
         state.board[row][col].highlighted = false;
         state.board[row][row].selected = false;
 
-        if (!(row === sRow)) {
-          state.board[sRow][sCol] = { player: null };
+        if (!(row === srow)) {
+          state.board[srow][scol] = { player: null };
         }
 
-        if (Math.abs(row - sRow) === 2) {
-          state.board[(sRow + row) / 2][(sCol + col) / 2] = { player: null };
+        if (Math.abs(row - srow) === 2) {
+          state.board[(srow + row) / 2][(scol + col) / 2] = { player: null };
           state.pieceCounts[state.player === 1 ? 2 : 1]--;
           console.log('hello');
         }
 
         const newMoves = this.getMoves(row, col, true);
-        if (Math.abs(row - sRow) === 2 && newMoves.length > 1) {
+        if (Math.abs(row - srow) === 2 && newMoves.length > 1) {
           state = this.select(row, col, true)(state);
         } else {
           // change turn
           state.player = state.player === 1 ? 2 : 1;
         }
-      } else if (row === sRow && col === sCol) {
+      } else if (row === srow && col === scol) {
         state = this.deselect()(state);
       }
 
