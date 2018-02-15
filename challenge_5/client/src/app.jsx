@@ -25,6 +25,12 @@ class App extends React.Component {
       this.setState(prevState => {
         const board = deepCopy(this.state.board);
         board[row][col].selected = true;
+
+        this.getMoves(row, col).forEach((move) => {
+          let [mrow, mcol] = move;
+          board[mrow][mcol].highlighted = true;
+        });
+
         return {
           board,
           selected: [row, col],
@@ -34,20 +40,58 @@ class App extends React.Component {
   }
 
   move(row, col) {
-    this.setState((prevState) => {
-      let [sRow, sCol] = prevState.selected;
-      const board = deepCopy(prevState.board);
+    const [sRow, sCol] = this.state.selected;
+    const moves = this.getMoves(sRow, sCol);
+    const validMove = moves
+      .map(move => move[0] === row && move[1] === col)
+      .reduce((acc, bool) => acc || bool);
 
-      board[row][col] = board[sRow][sCol];
-      board[sRow][sCol].selected = false;
-      board[sRow][sCol] = { player: null };
+    if (validMove) {
+      this.setState((prevState) => {
+        const board = deepCopy(prevState.board);
 
-      return {
-        board,
-        selected: null,
-        player: prevState.player === 1 ? 2 : 1,
-      };
+        moves.forEach((move) => {
+          let [mrow, mcol] = move;
+          board[mrow][mcol].highlighted = false;
+        });
+
+        board[row][col] = board[sRow][sCol];
+        board[sRow][sCol].selected = false;
+        board[sRow][sCol] = { player: null };
+
+        return {
+          board,
+          selected: null,
+          player: prevState.player === 1 ? 2 : 1,
+        };
+      })
+    }
+  }
+
+  getMoves(row, col) {
+    const dir = this.state.player === 1 ? 1 : -1;
+    const moves = [];
+
+    [-1, 1].forEach((i) => {
+      if ( // open space
+        this.state.board[row + dir] &&
+        this.state.board[row + dir][col + i] &&
+        this.state.board[row + dir][col + i].player === null
+      ) {
+        moves.push([row + dir, col + i]);
+      } else if ( // jump
+        this.state.board[row + dir] &&
+        this.state.board[row + dir][col + i] &&
+        this.state.board[row + dir][col + i].player !== this.state.player &&
+        this.state.board[row + 2 * dir] &&
+        this.state.board[row + 2 * dir][col + 2 * i] &&
+        this.state.board[row + 2 * dir][col + 2 * i].player === null
+      ) {
+        moves.push([row + 2 * dir, col + 2 * i]);
+      }
     })
+
+    return moves;
   }
 
   render() {
