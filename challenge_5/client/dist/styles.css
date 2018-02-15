@@ -51,3 +51,7 @@
 .player-2 {
   background-color: black;
 }
+
+.player-king {
+  border: 2px solid purple;
+}

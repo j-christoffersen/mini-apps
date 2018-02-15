@@ -69,6 +69,9 @@ class App extends React.Component {
         });
 
         state.board[row][col] = state.board[sRow][sCol];
+        if (row === 0 || row === 7) {
+          state.board[row][col].king = true;
+        }
         state.board[row][col].highlighted = false;
         state.board[sRow][sCol].selected = false;
 
@@ -102,28 +105,36 @@ class App extends React.Component {
   // Helpers
 
   getMoves(row, col, jump=false) {
-    const dir = this.state.player === 1 ? 1 : -1;
     const moves = [];
-
-    [-1, 1].forEach((i) => {
-      if ( // open space
-        this.state.board[row + dir] &&
-        this.state.board[row + dir][col + i] &&
-        this.state.board[row + dir][col + i].player === null
-      ) {
-        if (!jump) {
-          moves.push([row + dir, col + i]);
+    let dirs;
+    if (this.state.board[row][col].king) {
+      dirs = [-1, 1];
+    } else if (this.state.player === 1) {
+      dirs = [1];
+    } else {
+      dirs = [-1];
+    }
+    dirs.forEach((dir) => {
+      [-1, 1].forEach((i) => {
+        if ( // open space
+          this.state.board[row + dir] &&
+          this.state.board[row + dir][col + i] &&
+          this.state.board[row + dir][col + i].player === null
+        ) {
+          if (!jump) {
+            moves.push([row + dir, col + i]);
+          }
+        } else if ( // jump
+          this.state.board[row + dir] &&
+          this.state.board[row + dir][col + i] &&
+          this.state.board[row + dir][col + i].player !== this.state.player &&
+          this.state.board[row + 2 * dir] &&
+          this.state.board[row + 2 * dir][col + 2 * i] &&
+          this.state.board[row + 2 * dir][col + 2 * i].player === null
+        ) {
+          moves.push([row + 2 * dir, col + 2 * i]);
         }
-      } else if ( // jump
-        this.state.board[row + dir] &&
-        this.state.board[row + dir][col + i] &&
-        this.state.board[row + dir][col + i].player !== this.state.player &&
-        this.state.board[row + 2 * dir] &&
-        this.state.board[row + 2 * dir][col + 2 * i] &&
-        this.state.board[row + 2 * dir][col + 2 * i].player === null
-      ) {
-        moves.push([row + 2 * dir, col + 2 * i]);
-      }
+      })
     })
 
     if (jump) {
@@ -163,6 +174,11 @@ const Square = (props) => {
     `square-${props.color}`,
   ];
 
+  const playerClasses = [
+    'player',
+    `player-${props.square.player}`,
+  ];
+
   if (props.square.highlighted) {
     squareClasses.push('square-highlight');
   };
@@ -171,9 +187,13 @@ const Square = (props) => {
     squareClasses.push('square-selected');
   }
 
+  if (props.square.king) {
+    playerClasses.push('player-king');
+  }
+
   return (
     <div className={squareClasses.join(' ')} onClick={() => {props.onClick(props.row, props.col)}}>
-      <div className={`player player-${props.square.player}`}></div>
+      {props.square.player && <div className={playerClasses.join(' ')}></div>}
     </div>
   )
 }
@@ -210,5 +230,3 @@ function newBoard() {
 function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 };
-
-
