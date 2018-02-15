@@ -34,7 +34,7 @@ class App extends React.Component {
     return (prevState) => {
       let state = deepCopy(prevState);
       if (prevState.board[row][col].player === this.state.player) {
-        state.moves = this.getMoves(row, col, jump);
+        state.moves = this.getMoves(state, row, col, jump);
 
         state.board[row][col].selected = true;
 
@@ -77,7 +77,7 @@ class App extends React.Component {
       const moves = state.moves;
       const validMove = moves
         .map(move => move[0] === row && move[1] === col)
-        .reduce((acc, bool) => acc || bool);
+        .reduce((acc, bool) => acc || bool, false);
 
       if (validMove) {
         state = this.deselect()(state);
@@ -96,10 +96,9 @@ class App extends React.Component {
         if (Math.abs(row - srow) === 2) {
           state.board[(srow + row) / 2][(scol + col) / 2] = { player: null };
           state.pieceCounts[state.player === 1 ? 2 : 1]--;
-          console.log('hello');
         }
 
-        const newMoves = this.getMoves(row, col, true);
+        const newMoves = this.getMoves(state, row, col, true);
         if (Math.abs(row - srow) === 2 && newMoves.length > 0) {
           state = this.select(row, col, true)(state);
           state.jumping = true;
@@ -111,18 +110,19 @@ class App extends React.Component {
         state = this.deselect()(state);
       }
 
+      console.log(this.hasJump(state));
       return state;
     }
   }
 
   // Helpers
 
-  getMoves(row, col, jump=false) {
+  getMoves(state, row, col, jump=false) {
     const moves = [];
     let dirs;
-    if (this.state.board[row][col].king) {
+    if (state.board[row][col].king) {
       dirs = [-1, 1];
-    } else if (this.state.player === 1) {
+    } else if (state.player === 1) {
       dirs = [1];
     } else {
       dirs = [-1];
@@ -130,31 +130,41 @@ class App extends React.Component {
     dirs.forEach((dir) => {
       [-1, 1].forEach((i) => {
         if ( // open space
-          this.state.board[row + dir] &&
-          this.state.board[row + dir][col + i] &&
-          this.state.board[row + dir][col + i].player === null
+          state.board[row + dir] &&
+          state.board[row + dir][col + i] &&
+          state.board[row + dir][col + i].player === null
         ) {
-          if (!jump) {
+          if (!jump && !this.hasJump(state)) {
             moves.push([row + dir, col + i]);
           }
         } else if ( // jump
-          this.state.board[row + dir] &&
-          this.state.board[row + dir][col + i] &&
-          this.state.board[row + dir][col + i].player !== this.state.player &&
-          this.state.board[row + 2 * dir] &&
-          this.state.board[row + 2 * dir][col + 2 * i] &&
-          this.state.board[row + 2 * dir][col + 2 * i].player === null
+          state.board[row + dir] &&
+          state.board[row + dir][col + i] &&
+          state.board[row + dir][col + i].player !== state.player &&
+          state.board[row + 2 * dir] &&
+          state.board[row + 2 * dir][col + 2 * i] &&
+          state.board[row + 2 * dir][col + 2 * i].player === null
         ) {
           moves.push([row + 2 * dir, col + 2 * i]);
         }
       })
     });
 
-    // if (jump) {
-    //   moves.push([row, col]);
-    // }
-
     return moves;
+  }
+
+  hasJump(state) {
+    let hasJump = false
+
+    state.board.forEach((r, row) => {
+      r.forEach((square, col) => {
+        hasJump = hasJump ||
+          (square.player === state.player &&
+          this.getMoves(state, row, col, true).length > 0);
+      });
+    });
+
+    return hasJump;
   }
 
   // render
