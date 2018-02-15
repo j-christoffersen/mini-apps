@@ -1,0 +1,45 @@
+.board {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+}
+
+.square {
+  height: 100px;
+  width: 100px;
+}
+
+.square:hover {
+  height: 96px;
+  width: 96px;
+  border: 2px solid yellow;
+}
+
+.square-0 {
+  background-color: white;
+}
+
+.square-1 {
+  background-color: lightgray;
+}
+
+.square-selected {
+  background-color: orange;
+}
+
+.player {
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+}
+
+.player-1 {
+  background-color: red;
+}
+
+.player-2 {
+  background-color: black;
+}
