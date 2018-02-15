@@ -1,5 +1,3 @@
-
-
 class App extends React.Component {
   constructor() {
     super();
@@ -7,35 +5,50 @@ class App extends React.Component {
       board: newBoard(),
       player: 1,
       selected: null,
+      pieceCounts: {
+        1: 8,
+        2: 8,
+      },
+      // moves: null,
     };
 
     this.onClick = this.onClick.bind(this);
   }
 
+  // event handlers
+
   onClick(row, col) {
     if (this.state.selected) {
-      this.move(row, col);
+      this.setState(this.move(row, col));
     } else {
-      this.select(row, col);
+      this.setState(this.select(row, col));
     } 
   }
 
-  select(row, col) {
-    if (this.state.board[row][col].player === this.state.player) {
-      this.setState(prevState => {
-        const board = deepCopy(this.state.board);
+  // reducer creator
+
+  select(row, col, jump=false) {
+    return (prevState) => {
+      if (prevState.board[row][col].player === this.state.player) {
+        const board = deepCopy(prevState.board);
+        const moves = this.getMoves(row, col, jump);
+
+        console.log(moves);
         board[row][col].selected = true;
 
-        this.getMoves(row, col).forEach((move) => {
+        moves.forEach((move) => {
           let [mrow, mcol] = move;
           board[mrow][mcol].highlighted = true;
         });
 
         return {
+          // moves,
           board,
           selected: [row, col],
         };
-      })
+      }
+
+      return {};
     }
   }
 
@@ -46,29 +59,50 @@ class App extends React.Component {
       .map(move => move[0] === row && move[1] === col)
       .reduce((acc, bool) => acc || bool);
 
-    if (validMove) {
-      this.setState((prevState) => {
-        const board = deepCopy(prevState.board);
+    return (prevState) => {
+      if (validMove) {
+        let state = {
+          board: deepCopy(prevState.board),
+          pieceCounts: deepCopy(prevState.pieceCounts),
+          player: prevState.player,
+          selected: prevState.selected,
+        }
 
         moves.forEach((move) => {
           let [mrow, mcol] = move;
-          board[mrow][mcol].highlighted = false;
+          state.board[mrow][mcol].highlighted = false;
         });
 
-        board[row][col] = board[sRow][sCol];
-        board[sRow][sCol].selected = false;
-        board[sRow][sCol] = { player: null };
+        state.board[row][col] = state.board[sRow][sCol];
+        state.board[row][col].highlighted = false;
+        state.board[sRow][sCol].selected = false;
+        state.board[sRow][sCol] = { player: null };
 
-        return {
-          board,
-          selected: null,
-          player: prevState.player === 1 ? 2 : 1,
-        };
-      })
+        if (Math.abs(row - sRow) === 2) {
+          state.board[(sRow + row) / 2][(sCol + col) / 2] = { player: null };
+          state.pieceCounts[state.player === 1 ? 2 : 1]--;
+          console.log(this.getMoves(row, col, true));
+        }
+
+        const newMoves = this.getMoves(row, col, true);
+        if (Math.abs(row - sRow) === 2 && newMoves.length > 1) {
+          state = this.select(row, col, true)(state);
+        } else {
+          // change turn
+          state.player = state.player === 1 ? 2 : 1;
+          state.selected = null;
+        }
+
+        return state;
+      }
+
+      return {};
     }
   }
 
-  getMoves(row, col) {
+  // Helpers
+
+  getMoves(row, col, jump=false) {
     const dir = this.state.player === 1 ? 1 : -1;
     const moves = [];
 
@@ -78,7 +112,9 @@ class App extends React.Component {
         this.state.board[row + dir][col + i] &&
         this.state.board[row + dir][col + i].player === null
       ) {
-        moves.push([row + dir, col + i]);
+        if (!jump) {
+          moves.push([row + dir, col + i]);
+        }
       } else if ( // jump
         this.state.board[row + dir] &&
         this.state.board[row + dir][col + i] &&
@@ -91,8 +127,14 @@ class App extends React.Component {
       }
     })
 
+    if (jump) {
+      moves.push([row, col]);
+    }
+
     return moves;
   }
+
+  // render
 
   render() {
     return (
@@ -169,3 +211,5 @@ function newBoard() {
 function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 };
+
+

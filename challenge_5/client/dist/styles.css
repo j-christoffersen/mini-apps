@@ -34,6 +34,10 @@
   background-color: green;
 }
 
+.square-selected.square-highlight {
+  background-color: pink;
+}
+
 .player {
   height: 80px;
   width: 80px;
