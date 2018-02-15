@@ -18,37 +18,34 @@ class App extends React.Component {
   // event handlers
 
   onClick(row, col) {
-    if (this.state.selected) {
-      this.setState(this.move(row, col));
-    } else {
-      this.setState(this.select(row, col));
-    } 
+    if (this.state.pieceCounts[1] && this.state.pieceCounts[2]) {
+      if (this.state.selected) {
+        this.setState(this.move(row, col));
+      } else {
+        this.setState(this.select(row, col));
+      }
+    }
   }
 
   // reducer creator
 
   select(row, col, jump=false) {
     return (prevState) => {
+      let state = deepCopy(prevState);
       if (prevState.board[row][col].player === this.state.player) {
-        const board = deepCopy(prevState.board);
-        const moves = this.getMoves(row, col, jump);
+        state.moves = this.getMoves(row, col, jump);
 
-        console.log(moves);
-        board[row][col].selected = true;
+        state.board[row][col].selected = true;
 
-        moves.forEach((move) => {
+        state.moves.forEach((move) => {
           let [mrow, mcol] = move;
-          board[mrow][mcol].highlighted = true;
+          state.board[mrow][mcol].highlighted = true;
         });
 
-        return {
-          moves,
-          board,
-          selected: [row, col],
-        };
+        state.selected = [row, col];
       }
 
-      return {};
+      return state;
     }
   }
 
@@ -82,7 +79,7 @@ class App extends React.Component {
         if (Math.abs(row - sRow) === 2) {
           state.board[(sRow + row) / 2][(sCol + col) / 2] = { player: null };
           state.pieceCounts[state.player === 1 ? 2 : 1]--;
-          console.log(this.getMoves(row, col, true));
+          console.log('hello');
         }
 
         const newMoves = this.getMoves(row, col, true);
@@ -150,7 +147,7 @@ class App extends React.Component {
     return (
       <div>
         <Board board={this.state.board} onClick={this.onClick} />
-        <p>{`It's Player ${this.state.player}'s Turn!`}</p>
+        <Message player={this.state.player} pieceCounts={this.state.pieceCounts} />
       </div>
     );
   }
@@ -195,6 +192,22 @@ const Square = (props) => {
     <div className={squareClasses.join(' ')} onClick={() => {props.onClick(props.row, props.col)}}>
       {props.square.player && <div className={playerClasses.join(' ')}></div>}
     </div>
+  )
+}
+
+const Message = (props) => {
+  let message;
+
+  if (props.pieceCounts[1] === 0) {
+    message = 'Player 2 Wins!';
+  } else if (props.pieceCounts[2] === 0) {
+    message = 'Player 1 Wins!';
+  } else {
+    message = `It's Player ${props.player}'s Turn!`; 
+  }
+
+  return (
+    <p>{message}</p>
   )
 }
 
