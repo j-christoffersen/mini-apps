@@ -9,7 +9,7 @@ class App extends React.Component {
         1: 8,
         2: 8,
       },
-      // moves: null,
+      moves: null,
     };
 
     this.onClick = this.onClick.bind(this);
@@ -42,7 +42,7 @@ class App extends React.Component {
         });
 
         return {
-          // moves,
+          moves,
           board,
           selected: [row, col],
         };
@@ -54,19 +54,14 @@ class App extends React.Component {
 
   move(row, col) {
     const [sRow, sCol] = this.state.selected;
-    const moves = this.getMoves(sRow, sCol);
+    const moves = this.state.moves;
     const validMove = moves
       .map(move => move[0] === row && move[1] === col)
       .reduce((acc, bool) => acc || bool);
 
     return (prevState) => {
       if (validMove) {
-        let state = {
-          board: deepCopy(prevState.board),
-          pieceCounts: deepCopy(prevState.pieceCounts),
-          player: prevState.player,
-          selected: prevState.selected,
-        }
+        let state = deepCopy(prevState);
 
         moves.forEach((move) => {
           let [mrow, mcol] = move;
@@ -76,7 +71,10 @@ class App extends React.Component {
         state.board[row][col] = state.board[sRow][sCol];
         state.board[row][col].highlighted = false;
         state.board[sRow][sCol].selected = false;
-        state.board[sRow][sCol] = { player: null };
+
+        if (!(row === sRow)) {
+          state.board[sRow][sCol] = { player: null };
+        }
 
         if (Math.abs(row - sRow) === 2) {
           state.board[(sRow + row) / 2][(sCol + col) / 2] = { player: null };
@@ -91,6 +89,7 @@ class App extends React.Component {
           // change turn
           state.player = state.player === 1 ? 2 : 1;
           state.selected = null;
+          state.moves = null;
         }
 
         return state;
