@@ -10,6 +10,7 @@ class App extends React.Component {
         2: 8,
       },
       moves: null,
+      jumping: false,
     };
 
     this.onClick = this.onClick.bind(this);
@@ -62,6 +63,7 @@ class App extends React.Component {
       state.board[srow][scol].selected = false;
       state.selected = null;
       state.moves = null;
+      state.jumping = false;
 
       return state;
     }
@@ -98,13 +100,14 @@ class App extends React.Component {
         }
 
         const newMoves = this.getMoves(row, col, true);
-        if (Math.abs(row - srow) === 2 && newMoves.length > 1) {
+        if (Math.abs(row - srow) === 2 && newMoves.length > 0) {
           state = this.select(row, col, true)(state);
+          state.jumping = true;
         } else {
           // change turn
           state.player = state.player === 1 ? 2 : 1;
         }
-      } else if (row === srow && col === scol) {
+      } else if (row === srow && col === scol && !state.jumping) {
         state = this.deselect()(state);
       }
 
@@ -145,11 +148,11 @@ class App extends React.Component {
           moves.push([row + 2 * dir, col + 2 * i]);
         }
       })
-    })
+    });
 
-    if (jump) {
-      moves.push([row, col]);
-    }
+    // if (jump) {
+    //   moves.push([row, col]);
+    // }
 
     return moves;
   }
